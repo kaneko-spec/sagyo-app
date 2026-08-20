@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<title>ゴルチャ売上報告アプリ 使い方ガイド</title>
+<style>
+  :root{
+    --green:#1b5e20;
+    --green-deep:#0f3d12;
+    --cream:#f3ecd2;
+    --cream-light:#fbf6e6;
+    --paper:#ffffff;
+    --ink:#1c2230;
+    --muted:#5b6472;
+    --line:#e5e2d8;
+    --warn-bg:#fff6e5;
+    --warn-border:#d98c1f;
+    --warn-ink:#7a4a06;
+    --card-bg:#fafaf8;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:#ffffff;
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Segoe UI",system-ui,sans-serif;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:calc(28px + env(safe-area-inset-bottom));
+  }
+  a{color:var(--green);}
+  .wrap{max-width:560px;margin:0 auto;padding:0 18px;}
+
+  /* ヘッダー */
+  header.top{
+    background:linear-gradient(155deg,var(--green) 0%,var(--green-deep) 100%);
+    color:#fff;
+    padding:calc(28px + env(safe-area-inset-top)) 18px 24px;
+    border-bottom:4px solid var(--cream);
+  }
+  header.top .eyebrow{
+    font-size:0.8rem;
+    letter-spacing:.08em;
+    color:var(--cream-light);
+    font-weight:700;
+    margin:0 0 6px;
+  }
+  header.top h1{
+    margin:0 0 6px;
+    font-size:1.5rem;
+    line-height:1.4;
+  }
+  header.top p.sub{
+    margin:0;
+    font-size:0.92rem;
+    color:#e7f0e6;
+  }
+
+  /* もくじチップ */
+  nav.jump{
+    position:sticky;
+    top:0;
+    z-index:5;
+    background:rgba(255,255,255,.96);
+    border-bottom:1px solid var(--line);
+    padding:10px 18px;
+    backdrop-filter:blur(4px);
+  }
+  nav.jump .row{
+    max-width:560px;
+    margin:0 auto;
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  nav.jump a{
+    display:inline-flex;
+    align-items:center;
+    min-height:34px;
+    padding:0 12px;
+    border-radius:999px;
+    background:var(--green);
+    color:#fff;
+    text-decoration:none;
+    font-size:0.82rem;
+    font-weight:700;
+    white-space:nowrap;
+  }
+
+  main{padding-top:18px;}
+
+  section.block{margin:0 0 34px;}
+  section.block h2{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:1.2rem;
+    margin:0 0 14px;
+    padding-bottom:10px;
+    border-bottom:3px solid var(--cream);
+    color:var(--green-deep);
+  }
+  section.block h2 .num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:30px;height:30px;
+    border-radius:50%;
+    background:var(--green);
+    color:#fff;
+    font-size:0.95rem;
+    flex:none;
+  }
+
+  .card{
+    background:var(--card-bg);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 16px 14px;
+    margin:0 0 14px;
+  }
+  .card h3{
+    margin:0 0 10px;
+    font-size:1rem;
+    color:var(--green);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .card ol, .card ul{
+    margin:0;
+    padding-left:1.3em;
+  }
+  .card li{margin:0 0 8px;}
+  .card li:last-child{margin-bottom:0;}
+  .card p{margin:0 0 8px;}
+  .card p:last-child{margin-bottom:0;}
+
+  .lead{
+    background:var(--cream-light);
+    border:1px solid #e6d19b;
+    border-radius:14px;
+    padding:16px;
+    font-size:1.02rem;
+  }
+  .lead ul{margin:0;padding-left:1.2em;}
+  .lead li{margin:0 0 8px;}
+  .lead li:last-child{margin-bottom:0;}
+
+  .tip{
+    background:#eef6ee;
+    border:1px dashed #8fb98f;
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:0.92rem;
+    margin-top:10px;
+  }
+  .tip .ttl{font-weight:700;color:var(--green);margin:0 0 6px;}
+
+  .example{
+    background:#fbf6e9;
+    border:1px solid #e3d5a0;
+    border-radius:12px;
+    padding:12px 14px;
+    font-size:0.9rem;
+    margin-top:10px;
+  }
+  .example .ttl{font-weight:700;color:#8a6d1c;margin:0 0 6px;}
+  .example table{width:100%;border-collapse:collapse;}
+  .example td{padding:3px 4px;font-size:0.88rem;}
+  .example td.k{color:var(--muted);white-space:nowrap;}
+  .example td.v{text-align:right;font-weight:700;color:var(--ink);}
+
+  .warn{
+    background:var(--warn-bg);
+    border:1px solid var(--warn-border);
+    border-radius:14px;
+    padding:16px;
+    color:var(--warn-ink);
+    font-weight:700;
+    font-size:1rem;
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    margin:0 0 14px;
+  }
+  .warn:last-child{margin-bottom:0;}
+  .warn .ico{font-size:1.2rem;flex:none;}
+
+  .steps{list-style:none;margin:0;padding:0;}
+  .steps li{
+    display:flex;
+    gap:12px;
+    margin:0 0 16px;
+  }
+  .steps li:last-child{margin-bottom:0;}
+  .steps .circle{
+    flex:none;
+    width:34px;height:34px;
+    border-radius:50%;
+    background:var(--green);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    font-size:1rem;
+  }
+  .steps .body{flex:1;padding-top:3px;}
+  .steps .body h4{margin:0 0 6px;font-size:1rem;color:var(--green-deep);}
+  .steps .body p{margin:0 0 6px;font-size:0.94rem;color:var(--ink);}
+  .steps .body ul{margin:6px 0 0;padding-left:1.2em;font-size:0.92rem;color:var(--muted);}
+  .steps .body ul li{margin:0 0 4px;}
+
+  .qa{margin:0 0 16px;}
+  .qa:last-child{margin-bottom:0;}
+  .qa .q{
+    display:flex;
+    gap:8px;
+    font-weight:700;
+    color:var(--green);
+    margin:0 0 6px;
+    font-size:0.98rem;
+  }
+  .qa .a{
+    margin:0;
+    padding-left:26px;
+    font-size:0.94rem;
+    color:var(--ink);
+  }
+
+  .lookup{width:100%;border-collapse:collapse;font-size:0.9rem;}
+  .lookup th{
+    text-align:left;
+    background:var(--green);
+    color:#fff;
+    padding:8px 10px;
+    font-size:0.82rem;
+    font-weight:700;
+  }
+  .lookup th:first-child{border-radius:8px 0 0 0;}
+  .lookup th:last-child{border-radius:0 8px 0 0;}
+  .lookup td{
+    padding:9px 10px;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  .lookup td.item{font-weight:700;color:var(--green-deep);white-space:nowrap;}
+  .lookup tr:last-child td{border-bottom:none;}
+
+  .backtop{
+    display:inline-block;
+    margin-top:2px;
+    font-size:0.8rem;
+    color:var(--muted);
+    text-decoration:none;
+  }
+
+  footer{
+    max-width:560px;
+    margin:0 auto;
+    padding:20px 18px 10px;
+    color:var(--muted);
+    font-size:0.82rem;
+    border-top:1px solid var(--line);
+  }
+  footer p{margin:0 0 6px;}
+  footer p:last-child{margin-bottom:0;}
+</style>
+</head>
+<body>
+
+<header class="top" id="top">
+  <p class="eyebrow">ゴールデンチャイルドカフェ｜スタッフ用</p>
+  <h1>☕ ゴルチャ売上報告アプリ 使い方ガイド</h1>
+  <p class="sub">スマホで最後まで読めます。むずかしい操作はありません。</p>
+</header>
+
+<nav class="jump" aria-label="もくじ">
+  <div class="row">
+    <a href="#s1">①これは何</a>
+    <a href="#s2">②毎日の流れ</a>
+    <a href="#s3">③早見表</a>
+    <a href="#s4">④月初にやること</a>
+    <a href="#s5">⑤よくある質問</a>
+    <a href="#s6">⑥守ること</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <section class="block" id="s1">
+    <h2><span class="num">1</span>これは何?</h2>
+    <div class="lead">
+      <ul>
+        <li>📱 毎日LINEで送っている「売上報告」が、電卓なしで作れるようになります。</li>
+        <li>⌨️ することは「数字を打つ」だけ。合計・比率・達成率は全部アプリが自動で計算します。</li>
+        <li>📋 できあがった文面はワンタップでコピーできます。あとはLINEに貼って送るだけです。</li>
+        <li>⏱️ 今まで電卓で計算していた時間がなくなります。</li>
+      </ul>
+    </div>
+    <a class="backtop" href="#top">▲ もくじへ戻る</a>
+  </section>
+
+  <section class="block" id="s2">
+    <h2><span class="num">2</span>毎日の流れ（営業が終わったら）</h2>
+    <div class="tip" style="margin-bottom:14px;">
+      <p class="ttl">⏱️ 所要時間は約3分です</p>
+      <p style="margin:0;">スマレジの画面も一緒に開いておくと、数字を見ながら打てて早いです。</p>
+    </div>
+
+    <ol class="steps">
+      <li>
+        <span class="circle">1</span>
+        <span class="body">
+          <h4>アプリを開く</h4>
+          <p>日付は「今日」のままでOKです。違う日の分を直すときだけ日付を変えます。</p>
+        </span>
+      </li>
+      <li>
+        <span class="circle">2</span>
+        <span class="body">
+          <h4>売上の数字を、上から順に打つ</h4>
+          <p>店内売上→内モーニング→Uber→出前館→menu→ロケットナウの順です。</p>
+          <ul>
+            <li>使っていないサービスは、何も打たず空欄のままでOKです</li>
+            <li>打つたびに「総売上」「デリバリー合計」「売上比」が自動で出ます</li>
+          </ul>
+        </span>
+      </li>
+      <li>
+        <span class="circle">3</span>
+        <span class="body">
+          <h4>客数と時間帯売上を打つ</h4>
+          <p>朝（9〜11時）・昼（11〜18時）・夜（18〜LAST）の順に、人数と売上を打ちます。</p>
+          <ul>
+            <li>客単価は自動で計算されます</li>
+          </ul>
+        </span>
+      </li>
+      <li>
+        <span class="circle">4</span>
+        <span class="body">
+          <h4>人件費を打つ</h4>
+          <p>朝・昼・夜の人件費を打ちます。人件費の割合（％）は自動で出ます。</p>
+          <ul>
+            <li>「累計人件費％」は前日までのaspitの数字を打ちます</li>
+          </ul>
+        </span>
+      </li>
+      <li>
+        <span class="circle">5</span>
+        <span class="body">
+          <h4>入金額と今日の仕入を打つ</h4>
+          <p>レジの現金入金額と、仕入れ伝票の合計を打ちます。</p>
+        </span>
+      </li>
+      <li>
+        <span class="circle">6</span>
+        <span class="body">
+          <h4>コメントを書く</h4>
+          <p>「良かった点」「反省点」「改善点」を、それぞれ一言で大丈夫です。</p>
+        </span>
+      </li>
+      <li>
+        <span class="circle">7</span>
+        <span class="body">
+          <h4>できあがった文面を確認する</h4>
+          <p>画面の下のほうに、LINEに送る文面がそのまま出ています。数字を打つたびに自動で更新されます。</p>
+        </span>
+      </li>
+      <li>
+        <span class="circle">8</span>
+        <span class="body">
+          <h4>「📋 文面をコピー」を押す</h4>
+          <p>押した時点で自動でコピーが終わります。続けて案内画面が開きます。</p>
+        </span>
+      </li>
+      <li>
+        <span class="circle">9</span>
+        <span class="body">
+          <h4>案内画面の緑ボタン「LINEを開く」を押す</h4>
+          <p>LINEアプリが開きます。</p>
+          <div class="tip">
+            <p class="ttl">💻 パソコンで見ている時</p>
+            <p style="margin:0;">緑ボタンの代わりに案内文が出ます。PC版LINEを開いて「Ctrl+V」を押せば貼り付けられます。</p>
+          </div>
+        </span>
+      </li>
+      <li>
+        <span class="circle">10</span>
+        <span class="body">
+          <h4>「GCC社員」グループを選ぶ</h4>
+        </span>
+      </li>
+      <li>
+        <span class="circle">11</span>
+        <span class="body">
+          <h4>入力欄を長押し→「ペースト」→送信</h4>
+          <p>これで今日の売上報告は完了です。</p>
+        </span>
+      </li>
+    </ol>
+    <a class="backtop" href="#top">▲ もくじへ戻る</a>
+  </section>
+
+  <section class="block" id="s3">
+    <h2><span class="num">3</span>早見表：どこの数字をどこに打つか</h2>
+    <div class="card">
+      <table class="lookup">
+        <tr><th>打つ欄</th><th>どこを見る</th></tr>
+        <tr><td class="item">店内売上</td><td>スマレジ</td></tr>
+        <tr><td class="item">内モーニング売上</td><td>スマレジ（モーニングの数字だけ）</td></tr>
+        <tr><td class="item">Uber</td><td>Uberの管理画面・アプリ</td></tr>
+        <tr><td class="item">出前館・menu・ロケットナウ</td><td>各社の管理画面・アプリ（使っていない日は空欄でOK）</td></tr>
+        <tr><td class="item">朝・昼・夜の客数と時間帯売上</td><td>スマレジの時間帯別売上</td></tr>
+        <tr><td class="item">朝・昼・夜の人件費</td><td>シフト表</td></tr>
+        <tr><td class="item">累計人件費％</td><td>前日までのaspit</td></tr>
+        <tr><td class="item">入金額</td><td>レジの現金</td></tr>
+        <tr><td class="item">今日の仕入</td><td>仕入れ伝票の合計</td></tr>
+        <tr><td class="item">今月の目標・累計売上</td><td>自動で出ます（スマレジの累計と違う時だけ直す）</td></tr>
+      </table>
+      <div class="tip">
+        <p class="ttl">🈳 空欄でいい欄</p>
+        <p style="margin:0;">その日使っていないサービス（出前館・menu・ロケットナウなど）は、無理に0と打たず、空欄のままにしてください。</p>
+      </div>
+      <div class="example">
+        <p class="ttl">📝 例（8/18の実際の数字）</p>
+        <table>
+          <tr><td class="k">店内売上</td><td class="v">190,711円</td></tr>
+          <tr><td class="k">Uber</td><td class="v">18,832円</td></tr>
+          <tr><td class="k">昼：客数／時間帯売上</td><td class="v">41人／71,627円</td></tr>
+          <tr><td class="k">夜：客数／時間帯売上</td><td class="v">55人／119,075円</td></tr>
+          <tr><td class="k">朝・昼・夜の人件費</td><td class="v">6,500円／22,300円／21,600円</td></tr>
+          <tr><td class="k">入金額</td><td class="v">70,000円</td></tr>
+        </table>
+        <p style="margin:8px 0 0;color:var(--muted);">これだけ打てば、総売上・客単価・人件費％・達成率などは全部自動で出ます。</p>
+      </div>
+    </div>
+    <a class="backtop" href="#top">▲ もくじへ戻る</a>
+  </section>
+
+  <section class="block" id="s4">
+    <h2><span class="num">4</span>月初にやること（1回だけ）</h2>
+    <div class="card">
+      <ol class="steps">
+        <li>
+          <span class="circle">1</span>
+          <span class="body">
+            <h4>「今月の目標を入れてください」と出たら、目標金額を入れる</h4>
+            <p>月が変わって初めてアプリを開いたときだけ、この画面が出ます。</p>
+          </span>
+        </li>
+        <li>
+          <span class="circle">2</span>
+          <span class="body">
+            <h4>月の途中から使い始める時だけ：これまでの累計売上も入れる</h4>
+            <p>⚙️ 設定を開く→「今月これまでの累計売上」をスマレジで見て入れる→わかれば「今月これまでの累計仕入」も入れる。</p>
+            <ul>
+              <li>月の最初からアプリを使う場合は、この2番はやらなくて大丈夫です</li>
+            </ul>
+          </span>
+        </li>
+      </ol>
+      <div class="tip">
+        <p class="ttl">🔴 赤い帯が出たら</p>
+        <p style="margin:0;">今月の目標が入っていないと、画面上に赤い帯で「今月の目標を入れてください」と出ます。出たら⚙️設定を開いて目標を入れてください。</p>
+      </div>
+    </div>
+    <a class="backtop" href="#top">▲ もくじへ戻る</a>
+  </section>
+
+  <section class="block" id="s5">
+    <h2><span class="num">5</span>よくある質問</h2>
+    <div class="card">
+      <div class="qa">
+        <p class="q">❓ 「📋 文面をコピー」を押したのに、LINEに送れない</p>
+        <p class="a">コピーはボタンを押した時点でもう終わっています。LINEを自分で開いて、GCC社員グループの入力欄を長押し→「ペースト」を選べば、いつでも貼り付けて送れます。</p>
+      </div>
+      <div class="qa">
+        <p class="q">❓ 数字を間違えて送ってしまった</p>
+        <p class="a">アプリで正しい数字に直してから、もう一度「📋 文面をコピー」を押してください。新しくできた文面をLINEに貼って、訂正だとわかるように送れば大丈夫です。</p>
+      </div>
+      <div class="qa">
+        <p class="q">❓ 昨日の分の数字を直したい</p>
+        <p class="a">「📖 履歴」を開いて、直したい日付をタップしてください。その日の画面に切り替わるので、数字を直してもう一度コピーできます。</p>
+      </div>
+      <div class="qa">
+        <p class="q">❓ 使っていないサービスの欄はどうする？</p>
+        <p class="a">何も打たなくて大丈夫です。空欄のまま「出前館：円」のように文面に出ます。</p>
+      </div>
+    </div>
+    <a class="backtop" href="#top">▲ もくじへ戻る</a>
+  </section>
+
+  <section class="block" id="s6">
+    <h2><span class="num">6</span>守ること</h2>
+    <div class="warn">
+      <span class="ico">🔒</span>
+      <span>このアプリにIDやパスワードは絶対に入力しない。🔗リンク集の「開く」ボタンはお店の管理画面を開くだけです。ログインは自分のIDで、自分の手で行ってください。</span>
+    </div>
+    <div class="warn">
+      <span class="ico">✋</span>
+      <span>送信は必ず自分の手で。LINEを開いて、自分で貼り付けて、自分で送信してください。アプリやAIが代わりに送ることは絶対にありません。</span>
+    </div>
+    <a class="backtop" href="#top">▲ もくじへ戻る</a>
+  </section>
+
+</main>
+
+<footer>
+  <p>🙋 このガイドを見てもわからない時は、遠慮なく金子さんに直接聞いてください。</p>
+  <p>📱 本体はこちら → <a href="./gorucha-uriage.html">ゴルチャ売上報告アプリを開く</a></p>
+  <p>最終更新：2026-08-20</p>
+</footer>
+
+</body>
+</html>
