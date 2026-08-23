@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1f1f1f">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>作業指示書アプリ｜BYD名古屋北</title>
+<title>入庫予約依頼｜BYD名古屋北</title>
 <style>
 /* ==== リセット・基本 ==== */
 * { box-sizing: border-box; }
@@ -82,6 +82,7 @@ main { flex: 1; padding: 16px 14px 24px; }
 .field-label { display: block; font-size: 12.5px; color: #555; margin: 14px 0 6px; font-weight: 600; }
 .field-label:first-child { margin-top: 0; }
 .required-mark { color: #b3261e; font-size: 11px; margin-left: 4px; font-weight: 700; }
+.label-hint { font-weight: 400; color: #888; font-size: 11.5px; margin-left: 6px; }
 
 .field-input, .field-textarea, .field-date {
   width: 100%; font-size: 16px; padding: 11px 12px; border: 1px solid #d8d2c4; border-radius: 8px;
@@ -116,11 +117,15 @@ main { flex: 1; padding: 16px 14px 24px; }
 .chip--date { font-size: 12.5px; padding: 0 10px; color: #1f1f1f; border-color: #b5b5b5; }
 .chip--date:active { background: #1f1f1f; color: #fff; }
 
-.btn-fullset {
-  min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1.5px solid #c8102e;
-  background: #fdeef0; color: #8a1f2e; font-weight: 700; font-size: 13px; white-space: nowrap;
+.chip-row--big { gap: 10px; }
+.chip--big { flex: 1 1 45%; min-height: 52px; font-weight: 700; font-size: 15px; }
+.chip--big.is-selected { background: #1f1f1f; border-color: #1f1f1f; color: #fff; }
+
+.info-hint {
+  font-size: 13px; color: #333; line-height: 1.7; background: #f4f4f4; border: 1px solid #dcdcdc;
+  border-radius: 8px; padding: 10px 12px; margin: 8px 0;
 }
-.btn-fullset:active { background: #f7d3da; }
+.warn-text { font-size: 12.5px; color: #b3261e; font-weight: 700; margin: 6px 0 0; }
 
 /* ==== 作業項目トグル ==== */
 .work-item { border: 1px solid #e7e1d2; border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
@@ -256,7 +261,7 @@ body.modal-open { overflow: hidden; }
 
   <header class="app-header">
     <div class="app-header__title">
-      <span class="app-header__main">作業指示書</span>
+      <span class="app-header__main">入庫予約依頼</span>
       <span class="app-header__tag">BYD名古屋北</span>
     </div>
     <div class="app-header__actions">
@@ -275,51 +280,77 @@ body.modal-open { overflow: hidden; }
         <div class="chip-row chip-row--date" id="requestDateChips"></div>
       </div>
 
-      <label class="field-label" for="f_customerName">顧客名（〜様）<span class="required-mark">※必須</span></label>
+      <label class="field-label" for="f_customerName">お客様名（〜様）<span class="required-mark">※必須</span></label>
       <input type="text" id="f_customerName" class="field-input" placeholder="例：山田 太郎" autocomplete="off">
 
-      <label class="field-label" for="f_desiredDate">完成希望日</label>
-      <div class="date-row">
-        <input type="date" id="f_desiredDate" class="field-date">
-        <div class="chip-row chip-row--date" id="desiredDateChips"></div>
-      </div>
-
-      <div class="field-label">営業担当</div>
-      <div class="chip-row" id="staffChipRow"></div>
+      <label class="field-label" for="f_customerTel">お客様 電話番号<span class="label-hint">日程調整をフロントに任せる時は必須</span></label>
+      <input type="tel" inputmode="tel" id="f_customerTel" class="field-input" placeholder="例：090-1234-5678" autocomplete="off">
 
       <label class="field-label" for="f_carModel">車種</label>
-      <input type="text" id="f_carModel" class="field-input" list="dl_carModel" placeholder="例：G63 AMG" autocomplete="off">
+      <input type="text" id="f_carModel" class="field-input" list="dl_carModel" placeholder="例：ATTO 3" autocomplete="off">
       <datalist id="dl_carModel"></datalist>
 
       <label class="field-label" for="f_modelYear">年式</label>
-      <input type="text" id="f_modelYear" class="field-input" placeholder="例：2021" inputmode="numeric" autocomplete="off">
+      <input type="text" id="f_modelYear" class="field-input" placeholder="例：2024" inputmode="numeric" autocomplete="off">
 
-      <label class="field-label" for="f_vin">車体番号</label>
-      <input type="text" id="f_vin" class="field-input" placeholder="車体番号を入力" autocomplete="off">
+      <label class="field-label" for="f_plateNo">ナンバー（登録番号）</label>
+      <input type="text" id="f_plateNo" class="field-input" placeholder="例：名古屋 300 あ 12-34" autocomplete="off">
 
-      <label class="field-label" for="f_manageNo">管理番号</label>
-      <input type="text" id="f_manageNo" class="field-input" placeholder="管理番号を入力" autocomplete="off">
+      <div class="field-label">営業担当</div>
+      <div class="chip-row" id="staffChipRow"></div>
     </section>
 
     <section class="card" id="sectionItems" aria-labelledby="sectionItemsTitle">
-      <div class="card__head-row">
-        <h2 class="card__title" id="sectionItemsTitle">② 作業項目</h2>
-        <button type="button" class="btn-fullset" data-action="apply-fullset">🚗 納車前フルセット</button>
-      </div>
+      <h2 class="card__title" id="sectionItemsTitle">② 入庫内容</h2>
       <div id="workItemsContainer"></div>
     </section>
 
+    <section class="card" id="sectionSchedule" aria-labelledby="sectionScheduleTitle">
+      <h2 class="card__title" id="sectionScheduleTitle">③ 入庫希望日</h2>
+      <div class="chip-row chip-row--big">
+        <button type="button" class="chip chip--big" data-action="set-schedule-mode" data-value="fixed">日程決まっている</button>
+        <button type="button" class="chip chip--big" data-action="set-schedule-mode" data-value="tbd">日程はまだ</button>
+      </div>
+
+      <div id="scheduleFixedBlock" hidden>
+        <label class="field-label" for="f_nyukoDate">入庫希望日</label>
+        <div class="date-row">
+          <input type="date" id="f_nyukoDate" class="field-date">
+          <div class="chip-row chip-row--date" id="nyukoDateChips"></div>
+        </div>
+        <div class="field-label">時間帯</div>
+        <div class="chip-row">
+          <button type="button" class="chip chip--radio" data-action="set-timeslot" data-value="午前">午前</button>
+          <button type="button" class="chip chip--radio" data-action="set-timeslot" data-value="午後">午後</button>
+          <button type="button" class="chip chip--radio" data-action="set-timeslot" data-value="夕方">夕方</button>
+        </div>
+      </div>
+
+      <div id="scheduleTbdBlock" hidden>
+        <p class="info-hint">フロントからお客様へ電話して日程を段取りします。上の電話番号を入れてください</p>
+        <p class="warn-text" id="tbdPhoneWarn" hidden>⚠ 電話番号が未入力です</p>
+      </div>
+    </section>
+
+    <section class="card" id="sectionDaisha" aria-labelledby="sectionDaishaTitle">
+      <h2 class="card__title" id="sectionDaishaTitle">④ 代車</h2>
+      <div class="chip-row">
+        <button type="button" class="chip chip--radio" data-action="set-daisha" data-value="希望あり">希望あり</button>
+        <button type="button" class="chip chip--radio" data-action="set-daisha" data-value="不要">不要</button>
+      </div>
+    </section>
+
     <section class="card" id="sectionNote" aria-labelledby="sectionNoteTitle">
-      <h2 class="card__title" id="sectionNoteTitle">③ 備考、特記事項</h2>
+      <h2 class="card__title" id="sectionNoteTitle">⑤ 備考、特記事項</h2>
       <textarea id="f_note" class="field-textarea field-textarea--tall" rows="4" placeholder="自由に記入してください（任意）"></textarea>
     </section>
 
     <section class="card" id="sectionAskReply" aria-labelledby="sectionAskReplyTitle">
-      <h2 class="card__title" id="sectionAskReplyTitle">サービスへの返信依頼</h2>
+      <h2 class="card__title" id="sectionAskReplyTitle">⑥ サービスへの返信依頼</h2>
       <div class="work-item">
         <button type="button" class="work-item__toggle is-on" data-action="toggle-ask-reply" id="toggleAskReply" aria-pressed="true">
           <span class="work-item__check" aria-hidden="true"></span>
-          <span class="work-item__label">仕上がり予定日の返信をお願いする一文を入れる</span>
+          <span class="work-item__label">予約可否の返信をお願いする一文を入れる</span>
         </button>
       </div>
     </section>
@@ -379,7 +410,7 @@ body.modal-open { overflow: hidden; }
       <button type="button" class="modal__close" data-action="close-modal" data-modal="sendNavModal" aria-label="閉じる">✕</button>
     </div>
     <div class="modal__body">
-      <p class="nav-status" id="sendNavStatus">✅ 指示書テキストをコピーしました</p>
+      <p class="nav-status" id="sendNavStatus">✅ 予約依頼テキストをコピーしました</p>
       <ol class="nav-steps" id="sendNavSteps" hidden>
         <li>① 下の緑ボタンでLINEを開く</li>
         <li>② 送りたいトークを選ぶ</li>
@@ -425,32 +456,22 @@ body.modal-open { overflow: hidden; }
   /* ============================================================
    * 設定・定数
    * ============================================================ */
-  var STORAGE_KEY = 'byd_sagyo_shijisho_v1';
+  var STORAGE_KEY = 'byd_nyuko_yoyaku_v1';
   var FIXED_STAFF = ['金子']; // 他店舗スタッフ名は確証がないため入れない。以降は「＋担当を追加」で店舗ごとに登録する
+  var BYD_CAR_MODELS = ['ATTO 3', 'DOLPHIN', 'SEAL', 'SEALION 7', 'SEALION 6']; // 初期候補（自由入力可・入力履歴サジェストも併用）
 
-  // 紙様式1〜16番（17番の備考、特記事項は③セクションで別枠固定表示）
-  // selectOptions を持つ標準項目は、プリセットチップの代わりに「くるくる選べる」select を表示する（§D）
+  // 入庫内容8項目。selectOptions を持つ項目は「くるくる選べる」select を表示する
   var ITEM_DEFS = [
-    { id: 'nyusha', no: 1, label: '納車前点検', kind: 'standard', presets: ['点検済', '異常なし'] },
-    { id: 'oil', no: 2, label: '消耗品交換（オイル・オイルフィルター）', kind: 'standard', selectOptions: ['オイル＋フィルター交換（純正相当）', 'オイル＋フィルター交換（Mobil1）', 'オイルのみ交換'] },
-    { id: 'battery', no: 3, label: '消耗品交換（バッテリー・サブバッテリー）', kind: 'standard', selectOptions: ['メインバッテリー交換', 'サブバッテリー交換', 'メイン＋サブ両方交換'] },
-    { id: 'wiper', no: 4, label: '消耗品交換（ワイパー・エアコンフィルター）', kind: 'standard', selectOptions: ['ワイパー前後＋エアコンフィルター交換', 'ワイパーのみ交換', 'エアコンフィルターのみ交換'] },
-    { id: 'warranty', no: 5, label: '保証継承', kind: 'warranty' },
-    { id: 'bydWarranty', no: 6, label: 'BYD保証', kind: 'standard', selectOptions: ['メーカー保証手続き', '延長保証 案内', '保証内容 説明'] },
-    { id: 'drex', no: 7, label: 'ドライブレコーダー', kind: 'standard', selectOptions: ['前後2カメラ 新品取付', '前方のみ 新品取付', 'お客様持込品 取付'] },
-    { id: 'orbis', no: 8, label: 'オービスレーダー', kind: 'standard', selectOptions: ['レーダー探知機 新品取付', 'お客様持込品 取付', 'データ更新のみ'] },
-    { id: 'coating', no: 9, label: 'コーティング', kind: 'standard', selectOptions: ['ボディガラスコーティング', 'ボディ＋ホイールコーティング', 'メンテナンスコート'] },
-    { id: 'tireExchange', no: 10, label: 'タイヤ交換', kind: 'standard', selectOptions: ['新品夏タイヤ4本交換', '新品スタッドレス4本交換', 'お客様持込タイヤ 組替', 'フロント2本のみ交換'] },
-    { id: 'charging', no: 11, label: '充電ケーブル・充電設備', kind: 'standard', selectOptions: ['充電ケーブル同梱確認', '普通充電器 設置案内', 'V2H 設置案内'] },
-    { id: 'other', no: 12, label: 'その他作業', kind: 'other' },
-    { id: 'etc', no: 13, label: 'ETC車載機ナンバー', kind: 'etc' },
-    { id: 'brs', no: 14, label: 'BRS申請用', kind: 'brs' },
-    { id: 'tireSize', no: 15, label: 'タイヤ銘柄・サイズ', kind: 'tireSize' },
-    { id: 'tireYear', no: 16, label: 'タイヤ製造年', kind: 'tireYear' }
+    { id: 'tenken', no: 1, label: '点検', kind: 'standard', selectOptions: ['1ヶ月点検', '6ヶ月点検', '12ヶ月点検', '18ヶ月点検', '24ヶ月点検'] },
+    { id: 'shaken', no: 2, label: '車検', kind: 'standard', selectOptions: ['車検（継続検査）', '車検見積のみ'] },
+    { id: 'kosho', no: 3, label: '故障・修理', kind: 'standard', selectOptions: ['警告灯が点いた', '異音がする', '充電できない', '動かない・走行不能'], detailPlaceholder: '症状をできるだけ詳しく' },
+    { id: 'recall', no: 4, label: 'リコール・サービスキャンペーン', kind: 'standard', selectOptions: ['案内ハガキあり', '案内SMSあり', '対象か確認してほしい'] },
+    { id: 'tire', no: 5, label: 'タイヤ', kind: 'standard', selectOptions: ['タイヤ交換', 'パンク修理', 'ローテーション', '空気圧・摩耗チェック'] },
+    { id: 'charging', no: 6, label: '充電関連', kind: 'standard', selectOptions: ['充電ケーブル相談', '普通充電器 設置相談', 'V2H 設置相談', '充電の調子が悪い'] },
+    { id: 'yohin', no: 7, label: '用品取付', kind: 'standard', selectOptions: ['ドライブレコーダー取付', 'コーティング', 'フロアマット等 用品'] },
+    { id: 'other', no: 8, label: 'その他', kind: 'other' }
   ];
-  var NOTE_ITEM_LABEL = '備考、特記事項'; // 16番
-  // 保証継承（継承先）の select 選択肢（§D）。選択すると f_warranty_succeed（input）へ反映
-  var WARRANTY_SUCCEED_OPTIONS = ['ヤナセ', 'シュテルン', 'BMW正規ディーラー', 'MINI正規ディーラー', 'アウディ正規ディーラー', 'ポルシェセンター'];
+  var NOTE_ITEM_LABEL = '備考、特記事項';
   var SELECT_FREE_INPUT_VALUE = '__FREE__';
 
   /* ============================================================
@@ -489,10 +510,11 @@ body.modal-open { overflow: hidden; }
     return dt.getFullYear() + '/' + (dt.getMonth() + 1) + '/' + dt.getDate() + '(' + w[dt.getDay()] + ')';
   }
 
-  function formatMD(str) {
+  function formatMdWeekday(str) {
     var dt = parseLocalDate(str);
     if (!dt) return '';
-    return (dt.getMonth() + 1) + '/' + dt.getDate();
+    var w = ['日', '月', '火', '水', '木', '金', '土'];
+    return (dt.getMonth() + 1) + '/' + dt.getDate() + '(' + w[dt.getDay()] + ')';
   }
 
   function formatDateTimeIso(dt) {
@@ -503,10 +525,6 @@ body.modal-open { overflow: hidden; }
     var d = new Date();
     d.setDate(d.getDate() + offset);
     return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
-  }
-
-  function joinSlash(parts) {
-    return parts.filter(function (p) { return p && String(p).length; }).join('／');
   }
 
   function genId() {
@@ -520,30 +538,23 @@ body.modal-open { overflow: hidden; }
     return {
       requestDate: '',
       customerName: '',
-      desiredDate: '',
+      customerTel: '',
       salesStaff: [],
       carModel: '',
       modelYear: '',
-      vin: '',
-      manageNo: '',
+      plateNo: '',
       items: {
-        nyusha: { on: false, detail: '', due: '', autoFilled: true },
-        oil: { on: false, detail: '', due: '' },
-        battery: { on: false, detail: '', due: '' },
-        wiper: { on: false, detail: '', due: '' },
-        warranty: { on: false, has: '', succeedTo: '', note: '', due: '' },
-        bydWarranty: { on: false, detail: '', due: '' },
-        drex: { on: false, detail: '', due: '' },
-        orbis: { on: false, detail: '', due: '' },
-        coating: { on: false, detail: '', due: '' },
-        tireExchange: { on: false, detail: '', due: '' },
-        charging: { on: false, detail: '', due: '' },
-        other: { on: false, rows: [] },
-        etc: { on: false, no: '', setup: '', due: '' },
-        brs: { on: false, mileage: '', due: '' },
-        tireSize: { on: false, front: '', rear: '', due: '' },
-        tireYear: { on: false, fr: '', fl: '', rr: '', rl: '', due: '' }
+        tenken: { on: false, detail: '' },
+        shaken: { on: false, detail: '' },
+        kosho: { on: false, detail: '' },
+        recall: { on: false, detail: '' },
+        tire: { on: false, detail: '' },
+        charging: { on: false, detail: '' },
+        yohin: { on: false, detail: '' },
+        other: { on: false, rows: [] }
       },
+      nyukoSchedule: { mode: '', date: '', timeSlot: '' },
+      daisha: '',
       note: '',
       askReply: true
     };
@@ -555,14 +566,20 @@ body.modal-open { overflow: hidden; }
     try {
       base.requestDate = typeof loaded.requestDate === 'string' ? loaded.requestDate : '';
       base.customerName = typeof loaded.customerName === 'string' ? loaded.customerName : '';
-      base.desiredDate = typeof loaded.desiredDate === 'string' ? loaded.desiredDate : '';
+      base.customerTel = typeof loaded.customerTel === 'string' ? loaded.customerTel : '';
       base.salesStaff = Array.isArray(loaded.salesStaff) ? loaded.salesStaff.filter(function (n) { return getAllStaffNames().indexOf(n) !== -1; }) : [];
       base.carModel = typeof loaded.carModel === 'string' ? loaded.carModel : '';
       base.modelYear = typeof loaded.modelYear === 'string' ? loaded.modelYear : '';
-      base.vin = typeof loaded.vin === 'string' ? loaded.vin : '';
-      base.manageNo = typeof loaded.manageNo === 'string' ? loaded.manageNo : '';
+      base.plateNo = typeof loaded.plateNo === 'string' ? loaded.plateNo : '';
       base.note = typeof loaded.note === 'string' ? loaded.note : '';
       base.askReply = typeof loaded.askReply === 'boolean' ? loaded.askReply : true;
+      if (loaded.nyukoSchedule && typeof loaded.nyukoSchedule === 'object') {
+        var ns = loaded.nyukoSchedule;
+        base.nyukoSchedule.mode = (ns.mode === 'fixed' || ns.mode === 'tbd') ? ns.mode : '';
+        base.nyukoSchedule.date = typeof ns.date === 'string' ? ns.date : '';
+        base.nyukoSchedule.timeSlot = (['午前', '午後', '夕方'].indexOf(ns.timeSlot) !== -1) ? ns.timeSlot : '';
+      }
+      base.daisha = (loaded.daisha === '希望あり' || loaded.daisha === '不要') ? loaded.daisha : '';
       if (loaded.items && typeof loaded.items === 'object') {
         for (var key in base.items) {
           if (!Object.prototype.hasOwnProperty.call(base.items, key)) continue;
@@ -572,7 +589,7 @@ body.modal-open { overflow: hidden; }
             if (!Object.prototype.hasOwnProperty.call(base.items[key], f)) continue;
             if (f === 'rows') {
               base.items[key].rows = Array.isArray(src.rows) ? src.rows.map(function (r) {
-                return { text: (r && typeof r.text === 'string') ? r.text : '', due: (r && typeof r.due === 'string') ? r.due : '' };
+                return { text: (r && typeof r.text === 'string') ? r.text : '' };
               }) : [];
             } else if (src[f] !== undefined) {
               base.items[key][f] = src[f];
@@ -644,7 +661,11 @@ body.modal-open { overflow: hidden; }
   function refreshCarModelDatalist() {
     var dl = document.getElementById('dl_carModel');
     if (!dl) return;
-    dl.innerHTML = store.history.carModels.map(function (v) { return '<option value="' + escapeHtml(v) + '"></option>'; }).join('');
+    var combined = BYD_CAR_MODELS.slice();
+    (store.history.carModels || []).forEach(function (v) {
+      if (combined.indexOf(v) === -1) combined.push(v);
+    });
+    dl.innerHTML = combined.map(function (v) { return '<option value="' + escapeHtml(v) + '"></option>'; }).join('');
   }
 
   function refreshWorkNoteDatalist(itemId) {
@@ -704,15 +725,18 @@ body.modal-open { overflow: hidden; }
 
   function handleNewDraftClick() {
     startNewDraft(true);
-    showToast('新しい作業指示書を開始しました');
+    showToast('新しい入庫予約依頼を開始しました');
     window.scrollTo(0, 0);
   }
 
   /* ============================================================
-   * UI生成：作業項目行
+   * UI生成：入庫内容行
    * ============================================================ */
-  function quickDateChipsHTML(targetId, onlyToday) {
-    var opts = onlyToday ? [['本日', 0]] : [['本日', 0], ['明日', 1], ['+3日', 3], ['+1週間', 7]];
+  function quickDateChipsHTML(targetId, mode) {
+    var opts;
+    if (mode === 'todayOnly') opts = [['本日', 0]];
+    else if (mode === 'noToday') opts = [['明日', 1], ['+3日', 3], ['+1週間', 7]];
+    else opts = [['本日', 0], ['明日', 1], ['+3日', 3], ['+1週間', 7]];
     var html = '';
     for (var i = 0; i < opts.length; i++) {
       html += '<button type="button" class="chip chip--date" data-action="quick-date" data-target="' + targetId + '" data-offset="' + opts[i][1] + '">' + opts[i][0] + '</button>';
@@ -722,16 +746,6 @@ body.modal-open { overflow: hidden; }
 
   function fieldLabelHtml(text, forId) {
     return '<label class="field-label" for="' + forId + '">' + escapeHtml(text) + '</label>';
-  }
-
-  function dueBlockHtml(itemId) {
-    var inputId = 'f_' + itemId + '_due';
-    return '' +
-      fieldLabelHtml('締切日', inputId) +
-      '<div class="date-row">' +
-        '<input type="date" id="' + inputId + '" class="field-date" data-item="' + itemId + '" data-field="due">' +
-        '<div class="chip-row chip-row--date">' + quickDateChipsHTML(inputId) + '</div>' +
-      '</div>';
   }
 
   function toggleHeaderHtml(def) {
@@ -755,12 +769,6 @@ body.modal-open { overflow: hidden; }
     var body = '';
     if (def.kind === 'standard') {
       var textareaId = 'f_' + def.id + '_detail';
-      var presetsHtml = '';
-      if (def.presets && def.presets.length) {
-        for (var i = 0; i < def.presets.length; i++) {
-          presetsHtml += '<button type="button" class="chip chip--preset" data-action="insert-preset" data-item="' + def.id + '" data-text="' + escapeHtml(def.presets[i]) + '">' + escapeHtml(def.presets[i]) + '</button>';
-        }
-      }
       var selectHtml = '';
       if (def.selectOptions && def.selectOptions.length) {
         var selId = 'sel_' + def.id;
@@ -768,68 +776,17 @@ body.modal-open { overflow: hidden; }
           fieldLabelHtml('よく使う内容', selId) +
           '<select id="' + selId + '" class="field-input" data-action-select="preset-select" data-item="' + def.id + '">' + selectOptionsHtml(def.selectOptions) + '</select>';
       }
+      var placeholder = def.detailPlaceholder || '内容を入力（任意）';
       body = '' +
         selectHtml +
-        (presetsHtml ? '<div class="chip-row">' + presetsHtml + '</div>' : '') +
-        fieldLabelHtml('仕様、内容、希望', textareaId) +
-        '<textarea id="' + textareaId + '" class="field-textarea" rows="2" data-item="' + def.id + '" data-field="detail" list="dl_' + def.id + '" placeholder="内容を入力（任意）"></textarea>' +
-        '<datalist id="dl_' + def.id + '"></datalist>' +
-        dueBlockHtml(def.id);
-    } else if (def.kind === 'warranty') {
-      body = '' +
-        '<div class="field-label">継承の有無</div>' +
-        '<div class="chip-row">' +
-          '<button type="button" class="chip chip--radio" data-action="set-warranty-has" data-value="有り">有り</button>' +
-          '<button type="button" class="chip chip--radio" data-action="set-warranty-has" data-value="無し">無し</button>' +
-        '</div>' +
-        '<div class="sub-field" data-warranty-succeed hidden>' +
-          fieldLabelHtml('よく使う継承先', 'sel_warrantySucceed') +
-          '<select id="sel_warrantySucceed" class="field-input" data-action-select="warranty-succeed-select">' + selectOptionsHtml(WARRANTY_SUCCEED_OPTIONS) + '</select>' +
-          fieldLabelHtml('継承先等', 'f_warranty_succeed') +
-          '<input type="text" id="f_warranty_succeed" class="field-input" data-item="warranty" data-field="succeedTo" placeholder="例：ヤナセ名古屋">' +
-        '</div>' +
-        fieldLabelHtml('補足', 'f_warranty_note') +
-        '<textarea id="f_warranty_note" class="field-textarea" rows="2" data-item="warranty" data-field="note" placeholder="補足があれば入力（任意）"></textarea>' +
-        dueBlockHtml('warranty');
+        fieldLabelHtml('内容・症状', textareaId) +
+        '<textarea id="' + textareaId + '" class="field-textarea" rows="2" data-item="' + def.id + '" data-field="detail" list="dl_' + def.id + '" placeholder="' + escapeHtml(placeholder) + '"></textarea>' +
+        '<datalist id="dl_' + def.id + '"></datalist>';
     } else if (def.kind === 'other') {
       body = '' +
         '<div class="other-rows" id="otherRows"></div>' +
         '<button type="button" class="btn-add-row" data-action="add-other-row">＋ 行を追加</button>' +
         '<datalist id="dl_other"></datalist>';
-    } else if (def.kind === 'etc') {
-      body = '' +
-        fieldLabelHtml('ETC車載機ナンバー', 'f_etc_no') +
-        '<input type="text" id="f_etc_no" class="field-input" data-item="etc" data-field="no" placeholder="例：1234-5678-9012" autocomplete="off">' +
-        '<div class="field-label">セットアップ</div>' +
-        '<div class="chip-row">' +
-          '<button type="button" class="chip chip--radio" data-action="set-etc-setup" data-value="要">要</button>' +
-          '<button type="button" class="chip chip--radio" data-action="set-etc-setup" data-value="不要">不要</button>' +
-        '</div>' +
-        dueBlockHtml('etc');
-    } else if (def.kind === 'brs') {
-      body = '' +
-        fieldLabelHtml('走行距離', 'f_brs_mileage') +
-        '<div class="unit-row">' +
-          '<input type="number" inputmode="numeric" id="f_brs_mileage" class="field-input" data-item="brs" data-field="mileage" placeholder="例：35000" min="0">' +
-          '<span class="unit-label">km</span>' +
-        '</div>' +
-        dueBlockHtml('brs');
-    } else if (def.kind === 'tireSize') {
-      body = '' +
-        fieldLabelHtml('フロントタイヤ', 'f_tireSize_front') +
-        '<input type="text" id="f_tireSize_front" class="field-input" data-item="tireSize" data-field="front" placeholder="例：255/35R21" autocomplete="off">' +
-        fieldLabelHtml('リヤタイヤ', 'f_tireSize_rear') +
-        '<input type="text" id="f_tireSize_rear" class="field-input" data-item="tireSize" data-field="rear" placeholder="例：295/30R21" autocomplete="off">' +
-        dueBlockHtml('tireSize');
-    } else if (def.kind === 'tireYear') {
-      body = '' +
-        '<div class="grid2">' +
-          '<div>' + fieldLabelHtml('右フロント', 'f_tireYear_fr') + '<input type="text" id="f_tireYear_fr" class="field-input" data-item="tireYear" data-field="fr" placeholder="例：2523" autocomplete="off"></div>' +
-          '<div>' + fieldLabelHtml('左フロント', 'f_tireYear_fl') + '<input type="text" id="f_tireYear_fl" class="field-input" data-item="tireYear" data-field="fl" placeholder="例：2523" autocomplete="off"></div>' +
-          '<div>' + fieldLabelHtml('右リヤ', 'f_tireYear_rr') + '<input type="text" id="f_tireYear_rr" class="field-input" data-item="tireYear" data-field="rr" placeholder="例：2523" autocomplete="off"></div>' +
-          '<div>' + fieldLabelHtml('左リヤ', 'f_tireYear_rl') + '<input type="text" id="f_tireYear_rl" class="field-input" data-item="tireYear" data-field="rl" placeholder="例：2523" autocomplete="off"></div>' +
-        '</div>' +
-        dueBlockHtml('tireYear');
     }
     return '' +
       '<div class="work-item" data-item-row="' + def.id + '">' +
@@ -913,10 +870,10 @@ body.modal-open { overflow: hidden; }
     var container = document.getElementById('workItemsContainer');
     container.innerHTML = ITEM_DEFS.map(generateItemRowHTML).join('');
     buildStaffChips();
-    var ddChips = document.getElementById('desiredDateChips');
-    if (ddChips) ddChips.innerHTML = quickDateChipsHTML('f_desiredDate');
     var rdChips = document.getElementById('requestDateChips');
-    if (rdChips) rdChips.innerHTML = quickDateChipsHTML('f_requestDate', true);
+    if (rdChips) rdChips.innerHTML = quickDateChipsHTML('f_requestDate', 'todayOnly');
+    var ndChips = document.getElementById('nyukoDateChips');
+    if (ndChips) ndChips.innerHTML = quickDateChipsHTML('f_nyukoDate', 'noToday');
   }
 
   function renderOtherRows() {
@@ -930,21 +887,14 @@ body.modal-open { overflow: hidden; }
           '<div class="other-row__head"><span class="other-row__no">その他 ' + (i + 1) + '</span>' +
             '<button type="button" class="btn-remove-row" data-action="delete-other-row" data-row="' + i + '" aria-label="この行を削除">✕</button>' +
           '</div>' +
-          fieldLabelHtml('仕様、内容、希望', 'f_other_' + i + '_text') +
-          '<textarea id="f_other_' + i + '_text" class="field-textarea" rows="2" data-other-field="text" data-row="' + i + '" list="dl_other" placeholder="作業内容を入力"></textarea>' +
-          fieldLabelHtml('締切日', 'f_other_' + i + '_due') +
-          '<div class="date-row">' +
-            '<input type="date" id="f_other_' + i + '_due" class="field-date" data-other-field="due" data-row="' + i + '">' +
-            '<div class="chip-row chip-row--date">' + quickDateChipsHTML('f_other_' + i + '_due') + '</div>' +
-          '</div>' +
+          fieldLabelHtml('内容・症状', 'f_other_' + i + '_text') +
+          '<textarea id="f_other_' + i + '_text" class="field-textarea" rows="2" data-other-field="text" data-row="' + i + '" list="dl_other" placeholder="内容を入力"></textarea>' +
         '</div>';
     }
-    container.innerHTML = html || '<p class="empty-hint">「＋ 行を追加」で作業を追加できます</p>';
+    container.innerHTML = html || '<p class="empty-hint">「＋ 行を追加」で入力できます</p>';
     for (var j = 0; j < rows.length; j++) {
       var ta = document.getElementById('f_other_' + j + '_text');
-      var da = document.getElementById('f_other_' + j + '_due');
       if (ta) ta.value = rows[j].text || '';
-      if (da) da.value = rows[j].due || '';
     }
   }
 
@@ -954,17 +904,39 @@ body.modal-open { overflow: hidden; }
   }
 
   /* ============================================================
+   * 入庫希望日・代車：チップ状態の反映
+   * ============================================================ */
+  function updateScheduleUI() {
+    var mode = formData.nyukoSchedule.mode;
+    document.querySelectorAll('[data-action="set-schedule-mode"]').forEach(function (btn) {
+      btn.classList.toggle('is-selected', btn.getAttribute('data-value') === mode);
+    });
+    var fixedBlock = document.getElementById('scheduleFixedBlock');
+    var tbdBlock = document.getElementById('scheduleTbdBlock');
+    if (fixedBlock) fixedBlock.hidden = (mode !== 'fixed');
+    if (tbdBlock) tbdBlock.hidden = (mode !== 'tbd');
+    updateTbdPhoneWarning();
+  }
+
+  function updateTbdPhoneWarning() {
+    var warnEl = document.getElementById('tbdPhoneWarn');
+    if (!warnEl) return;
+    var show = (formData.nyukoSchedule.mode === 'tbd') && !(formData.customerTel && formData.customerTel.trim());
+    warnEl.hidden = !show;
+  }
+
+  /* ============================================================
    * フォーム → 画面反映
    * ============================================================ */
   function populateFormToUI() {
     setVal('f_requestDate', formData.requestDate);
     setVal('f_customerName', formData.customerName);
-    setVal('f_desiredDate', formData.desiredDate);
+    setVal('f_customerTel', formData.customerTel);
     setVal('f_carModel', formData.carModel);
     setVal('f_modelYear', formData.modelYear);
-    setVal('f_vin', formData.vin);
-    setVal('f_manageNo', formData.manageNo);
+    setVal('f_plateNo', formData.plateNo);
     setVal('f_note', formData.note);
+    setVal('f_nyukoDate', formData.nyukoSchedule.date);
 
     var askReplyBtn = document.getElementById('toggleAskReply');
     if (askReplyBtn) {
@@ -983,38 +955,17 @@ body.modal-open { overflow: hidden; }
 
       if (def.kind === 'standard') {
         setVal('f_' + def.id + '_detail', item.detail);
-        setVal('f_' + def.id + '_due', item.due);
-      } else if (def.kind === 'warranty') {
-        document.querySelectorAll('[data-action="set-warranty-has"]').forEach(function (b) {
-          b.classList.toggle('is-selected', b.getAttribute('data-value') === item.has);
-        });
-        var succeedWrap = document.querySelector('[data-warranty-succeed]');
-        if (succeedWrap) succeedWrap.hidden = (item.has !== '有り');
-        setVal('f_warranty_succeed', item.succeedTo);
-        setVal('f_warranty_note', item.note);
-        setVal('f_warranty_due', item.due);
-      } else if (def.kind === 'etc') {
-        setVal('f_etc_no', item.no);
-        document.querySelectorAll('[data-action="set-etc-setup"]').forEach(function (b) {
-          b.classList.toggle('is-selected', b.getAttribute('data-value') === item.setup);
-        });
-        setVal('f_etc_due', item.due);
-      } else if (def.kind === 'brs') {
-        setVal('f_brs_mileage', item.mileage);
-        setVal('f_brs_due', item.due);
-      } else if (def.kind === 'tireSize') {
-        setVal('f_tireSize_front', item.front);
-        setVal('f_tireSize_rear', item.rear);
-        setVal('f_tireSize_due', item.due);
-      } else if (def.kind === 'tireYear') {
-        setVal('f_tireYear_fr', item.fr);
-        setVal('f_tireYear_fl', item.fl);
-        setVal('f_tireYear_rr', item.rr);
-        setVal('f_tireYear_rl', item.rl);
-        setVal('f_tireYear_due', item.due);
       } else if (def.kind === 'other') {
         renderOtherRows();
       }
+    });
+
+    updateScheduleUI();
+    document.querySelectorAll('[data-action="set-timeslot"]').forEach(function (b) {
+      b.classList.toggle('is-selected', b.getAttribute('data-value') === formData.nyukoSchedule.timeSlot);
+    });
+    document.querySelectorAll('[data-action="set-daisha"]').forEach(function (b) {
+      b.classList.toggle('is-selected', b.getAttribute('data-value') === formData.daisha);
     });
   }
 
@@ -1025,21 +976,12 @@ body.modal-open { overflow: hidden; }
     var t = e.target;
     if (t.id === 'f_requestDate') { formData.requestDate = t.value; scheduleSave(); return; }
     if (t.id === 'f_customerName') { formData.customerName = t.value; scheduleSave(); return; }
-    if (t.id === 'f_desiredDate') { formData.desiredDate = t.value; scheduleSave(); return; }
+    if (t.id === 'f_customerTel') { formData.customerTel = t.value; updateTbdPhoneWarning(); scheduleSave(); return; }
     if (t.id === 'f_carModel') { formData.carModel = t.value; scheduleSave(); return; }
-    if (t.id === 'f_modelYear') {
-      formData.modelYear = t.value;
-      if (formData.items.nyusha.on && formData.items.nyusha.autoFilled) {
-        var v = formData.modelYear ? (formData.modelYear + '年式') : '';
-        formData.items.nyusha.detail = v;
-        setVal('f_nyusha_detail', v);
-      }
-      scheduleSave();
-      return;
-    }
-    if (t.id === 'f_vin') { formData.vin = t.value; scheduleSave(); return; }
-    if (t.id === 'f_manageNo') { formData.manageNo = t.value; scheduleSave(); return; }
+    if (t.id === 'f_modelYear') { formData.modelYear = t.value; scheduleSave(); return; }
+    if (t.id === 'f_plateNo') { formData.plateNo = t.value; scheduleSave(); return; }
     if (t.id === 'f_note') { formData.note = t.value; scheduleSave(); return; }
+    if (t.id === 'f_nyukoDate') { formData.nyukoSchedule.date = t.value; scheduleSave(); return; }
 
     if (t.matches && t.matches('[data-other-field]')) {
       var idx = parseInt(t.getAttribute('data-row'), 10);
@@ -1056,9 +998,6 @@ body.modal-open { overflow: hidden; }
       var field = t.getAttribute('data-field');
       if (formData.items[itemId] && (field in formData.items[itemId])) {
         formData.items[itemId][field] = t.value;
-        if (itemId === 'nyusha' && field === 'detail') {
-          formData.items.nyusha.autoFilled = false;
-        }
         scheduleSave();
       }
     }
@@ -1085,8 +1024,8 @@ body.modal-open { overflow: hidden; }
   }
 
   /* ============================================================
-   * イベント：select系（くるくる選べる／§D）
-   * 選択した文言を detail（またはinput）へ置換設定し、select自体は
+   * イベント：select系（くるくる選べる）
+   * 選択した文言を detail へ置換設定し、select自体は
    * 都度プレースホルダへ戻す（選択状態そのものは保存しない）
    * ============================================================ */
   function onSelectChange(e) {
@@ -1104,30 +1043,11 @@ body.modal-open { overflow: hidden; }
       if (val === SELECT_FREE_INPUT_VALUE) {
         item.detail = '';
         setVal('f_' + itemId + '_detail', '');
-        if (itemId === 'nyusha') item.autoFilled = false;
         var ta = document.getElementById('f_' + itemId + '_detail');
         if (ta) ta.focus();
       } else {
         item.detail = val;
         setVal('f_' + itemId + '_detail', val);
-        if (itemId === 'nyusha') item.autoFilled = false;
-      }
-      scheduleSave();
-      return;
-    }
-
-    if (selType === 'warranty-succeed-select') {
-      var val2 = t.value;
-      t.value = '';
-      if (!val2) return;
-      if (val2 === SELECT_FREE_INPUT_VALUE) {
-        formData.items.warranty.succeedTo = '';
-        setVal('f_warranty_succeed', '');
-        var inp = document.getElementById('f_warranty_succeed');
-        if (inp) inp.focus();
-      } else {
-        formData.items.warranty.succeedTo = val2;
-        setVal('f_warranty_succeed', val2);
       }
       scheduleSave();
     }
@@ -1142,16 +1062,15 @@ body.modal-open { overflow: hidden; }
     var action = el.getAttribute('data-action');
     if (action === 'toggle-item') { handleToggleItem(el.getAttribute('data-item')); return; }
     if (action === 'toggle-ask-reply') { handleToggleAskReply(); return; }
-    if (action === 'insert-preset') { handleInsertPreset(el.getAttribute('data-item'), el.getAttribute('data-text')); return; }
     if (action === 'quick-date') { handleQuickDate(el.getAttribute('data-target'), parseInt(el.getAttribute('data-offset'), 10)); return; }
     if (action === 'toggle-staff') { handleToggleStaff(el.getAttribute('data-name')); return; }
     if (action === 'add-staff') { handleAddStaff(); return; }
     if (action === 'delete-staff') { handleDeleteStaff(el.getAttribute('data-name'), e); return; }
-    if (action === 'set-warranty-has') { handleSetWarrantyHas(el.getAttribute('data-value')); return; }
-    if (action === 'set-etc-setup') { handleSetEtcSetup(el.getAttribute('data-value')); return; }
+    if (action === 'set-schedule-mode') { handleSetScheduleMode(el.getAttribute('data-value')); return; }
+    if (action === 'set-timeslot') { handleSetTimeSlot(el.getAttribute('data-value')); return; }
+    if (action === 'set-daisha') { handleSetDaisha(el.getAttribute('data-value')); return; }
     if (action === 'add-other-row') { handleAddOtherRow(); return; }
     if (action === 'delete-other-row') { handleDeleteOtherRow(parseInt(el.getAttribute('data-row'), 10)); return; }
-    if (action === 'apply-fullset') { handleApplyFullset(); return; }
     if (action === 'new-draft') { handleNewDraftClick(); return; }
     if (action === 'open-history') { openHistoryModal(); return; }
     if (action === 'close-modal') { closeModal(el.getAttribute('data-modal')); return; }
@@ -1172,13 +1091,8 @@ body.modal-open { overflow: hidden; }
     if (btn) { btn.setAttribute('aria-pressed', item.on ? 'true' : 'false'); btn.classList.toggle('is-on', item.on); }
     if (detail) detail.hidden = !item.on;
 
-    if (itemId === 'nyusha' && item.on && !item.detail) {
-      item.detail = formData.modelYear ? (formData.modelYear + '年式') : '';
-      item.autoFilled = true;
-      setVal('f_nyusha_detail', item.detail);
-    }
     if (itemId === 'other' && item.on && item.rows.length === 0) {
-      item.rows.push({ text: '', due: '' });
+      item.rows.push({ text: '' });
       renderOtherRows();
     }
     scheduleSave();
@@ -1194,28 +1108,9 @@ body.modal-open { overflow: hidden; }
     scheduleSave();
   }
 
-  function handleInsertPreset(itemId, text) {
-    var item = formData.items[itemId];
-    if (!item) return;
-    var current = item.detail || '';
-    item.detail = current ? (current + ' ' + text) : text;
-    setVal('f_' + itemId + '_detail', item.detail);
-    if (itemId === 'nyusha') item.autoFilled = false;
-    scheduleSave();
-  }
-
   function syncDateFieldToState(input, value) {
     if (input.id === 'f_requestDate') { formData.requestDate = value; return; }
-    if (input.id === 'f_desiredDate') { formData.desiredDate = value; return; }
-    if (input.matches && input.matches('[data-item][data-field="due"]')) {
-      var itemId = input.getAttribute('data-item');
-      if (formData.items[itemId]) formData.items[itemId].due = value;
-      return;
-    }
-    if (input.matches && input.matches('[data-other-field="due"]')) {
-      var idx = parseInt(input.getAttribute('data-row'), 10);
-      if (formData.items.other.rows[idx]) formData.items.other.rows[idx].due = value;
-    }
+    if (input.id === 'f_nyukoDate') { formData.nyukoSchedule.date = value; return; }
   }
 
   function handleQuickDate(targetId, offset) {
@@ -1234,26 +1129,30 @@ body.modal-open { overflow: hidden; }
     scheduleSave();
   }
 
-  function handleSetWarrantyHas(value) {
-    formData.items.warranty.has = value;
-    document.querySelectorAll('[data-action="set-warranty-has"]').forEach(function (btn) {
-      btn.classList.toggle('is-selected', btn.getAttribute('data-value') === value);
-    });
-    var succeedWrap = document.querySelector('[data-warranty-succeed]');
-    if (succeedWrap) succeedWrap.hidden = (value !== '有り');
+  function handleSetScheduleMode(value) {
+    formData.nyukoSchedule.mode = (formData.nyukoSchedule.mode === value) ? '' : value;
+    updateScheduleUI();
     scheduleSave();
   }
 
-  function handleSetEtcSetup(value) {
-    formData.items.etc.setup = value;
-    document.querySelectorAll('[data-action="set-etc-setup"]').forEach(function (btn) {
-      btn.classList.toggle('is-selected', btn.getAttribute('data-value') === value);
+  function handleSetTimeSlot(value) {
+    formData.nyukoSchedule.timeSlot = (formData.nyukoSchedule.timeSlot === value) ? '' : value;
+    document.querySelectorAll('[data-action="set-timeslot"]').forEach(function (btn) {
+      btn.classList.toggle('is-selected', btn.getAttribute('data-value') === formData.nyukoSchedule.timeSlot);
+    });
+    scheduleSave();
+  }
+
+  function handleSetDaisha(value) {
+    formData.daisha = (formData.daisha === value) ? '' : value;
+    document.querySelectorAll('[data-action="set-daisha"]').forEach(function (btn) {
+      btn.classList.toggle('is-selected', btn.getAttribute('data-value') === formData.daisha);
     });
     scheduleSave();
   }
 
   function handleAddOtherRow() {
-    formData.items.other.rows.push({ text: '', due: '' });
+    formData.items.other.rows.push({ text: '' });
     renderOtherRows();
     scheduleSave();
   }
@@ -1263,25 +1162,6 @@ body.modal-open { overflow: hidden; }
     formData.items.other.rows.splice(idx, 1);
     renderOtherRows();
     scheduleSave();
-  }
-
-  function handleApplyFullset() {
-    ['nyusha', 'oil', 'battery', 'wiper'].forEach(function (id) {
-      if (!formData.items[id].on) {
-        formData.items[id].on = true;
-        var btn = document.getElementById('toggle_' + id);
-        var detail = document.querySelector('[data-detail="' + id + '"]');
-        if (btn) { btn.setAttribute('aria-pressed', 'true'); btn.classList.add('is-on'); }
-        if (detail) detail.hidden = false;
-      }
-    });
-    if (!formData.items.nyusha.detail) {
-      formData.items.nyusha.detail = formData.modelYear ? (formData.modelYear + '年式') : '';
-      formData.items.nyusha.autoFilled = true;
-      setVal('f_nyusha_detail', formData.items.nyusha.detail);
-    }
-    scheduleSave();
-    showToast('納車前フルセットをONにしました');
   }
 
   /* ============================================================
@@ -1341,7 +1221,7 @@ body.modal-open { overflow: hidden; }
 
   function handleDeleteDraft(id, evt) {
     if (evt && evt.stopPropagation) evt.stopPropagation();
-    if (!window.confirm('この作業指示書の下書きを削除しますか？')) return;
+    if (!window.confirm('この入庫予約依頼の下書きを削除しますか？')) return;
     var idx = -1;
     for (var i = 0; i < store.drafts.length; i++) { if (store.drafts[i].id === id) { idx = i; break; } }
     if (idx !== -1) store.drafts.splice(idx, 1);
@@ -1351,67 +1231,68 @@ body.modal-open { overflow: hidden; }
   }
 
   /* ============================================================
+   * 入庫希望日の要約テキスト（LINEテキスト・プレビュー・画像で共用）
+   * ============================================================ */
+  function scheduleSummaryText() {
+    var ns = formData.nyukoSchedule;
+    if (ns.mode !== 'fixed') return '';
+    var parts = [];
+    if (ns.date) parts.push(formatMdWeekday(ns.date));
+    if (ns.timeSlot) parts.push(ns.timeSlot);
+    return parts.join(' ');
+  }
+
+  /* ============================================================
    * プレビュー（ONの項目のみ表示）
    * ============================================================ */
   function metaRow(label, value) {
     return '<tr><th>' + escapeHtml(label) + '</th><td>' + escapeHtml(value) + '</td></tr>';
   }
 
-  function previewRow(label, detail, due) {
-    return '<tr><td>' + escapeHtml(label) + '</td><td>' + escapeHtml(detail) + '</td><td>' + escapeHtml(due) + '</td></tr>';
-  }
-
-  function previewDetailText(def, item) {
-    if (def.kind === 'standard') return item.detail || '';
-    if (def.kind === 'warranty') {
-      var s = item.has || '';
-      if (item.has === '有り' && item.succeedTo) s += '（' + item.succeedTo + '）';
-      if (item.note) s += (s ? ' ' : '') + item.note;
-      return s;
-    }
-    if (def.kind === 'etc') {
-      var e = item.no || '';
-      if (item.setup) e += (e ? ' ' : '') + 'セットアップ' + item.setup;
-      return e;
-    }
-    if (def.kind === 'brs') return item.mileage ? item.mileage + 'km' : '';
-    if (def.kind === 'tireSize') return joinSlash([item.front ? 'フロント:' + item.front : '', item.rear ? 'リヤ:' + item.rear : '']);
-    if (def.kind === 'tireYear') return joinSlash([item.fr ? '右前' + item.fr : '', item.fl ? '左前' + item.fl : '', item.rr ? '右後' + item.rr : '', item.rl ? '左後' + item.rl : '']);
-    return '';
-  }
-
   function buildPreviewHtml() {
     var html = '<div class="paper-preview">';
-    html += '<div class="paper-preview__title">作業指示書<span class="paper-preview__tag">BYD名古屋北</span></div>';
+    html += '<div class="paper-preview__title">入庫予約依頼<span class="paper-preview__tag">BYD名古屋北</span></div>';
     html += '<table class="paper-preview__meta">';
     if (formData.requestDate) html += metaRow('依頼日', formatDateSlashJp(formData.requestDate));
     html += metaRow('お客様', (formData.customerName || '（未入力）') + ' 様');
-    if (formData.desiredDate) html += metaRow('完成希望日', formatDateSlashJp(formData.desiredDate));
+    if (formData.customerTel) html += metaRow('電話', formData.customerTel);
     if (formData.carModel) html += metaRow('車種', formData.carModel + (formData.modelYear ? '（' + formData.modelYear + '年式）' : ''));
-    if (formData.vin) html += metaRow('車体番号', formData.vin);
-    if (formData.manageNo) html += metaRow('管理番号', formData.manageNo);
+    if (formData.plateNo) html += metaRow('ナンバー', formData.plateNo);
     if (formData.salesStaff.length) html += metaRow('営業担当', formData.salesStaff.join('・'));
     html += '</table>';
 
     var hasOn = ITEM_DEFS.some(function (def) { return formData.items[def.id].on; });
     if (hasOn) {
-      html += '<div class="paper-preview__section">作業内容</div>';
-      html += '<table class="paper-preview__table"><thead><tr><th>作業項目</th><th>仕様、内容、希望</th><th>締切日</th></tr></thead><tbody>';
+      html += '<div class="paper-preview__section">入庫内容</div>';
+      html += '<table class="paper-preview__table"><thead><tr><th>項目</th><th>内容・症状</th></tr></thead><tbody>';
       ITEM_DEFS.forEach(function (def) {
         var item = formData.items[def.id];
         if (!item.on) return;
         if (def.kind === 'other') {
-          item.rows.forEach(function (row) {
-            if (!row.text && !row.due) return;
-            html += previewRow(def.label, row.text || '', row.due ? formatMD(row.due) : '');
-          });
+          var texts = item.rows.map(function (r) { return r.text ? r.text.trim() : ''; }).filter(function (t) { return t; });
+          html += '<tr><td>' + escapeHtml(def.label) + '</td><td>' + escapeHtml(texts.join(' / ')) + '</td></tr>';
         } else {
-          html += previewRow(def.label, previewDetailText(def, item), item.due ? formatMD(item.due) : '');
+          html += '<tr><td>' + escapeHtml(def.label) + '</td><td>' + escapeHtml(item.detail || '') + '</td></tr>';
         }
       });
       html += '</tbody></table>';
     } else {
-      html += '<p class="paper-preview__empty">ONの作業項目がありません</p>';
+      html += '<p class="paper-preview__empty">ONの入庫内容がありません</p>';
+    }
+
+    var ns = formData.nyukoSchedule;
+    var scheduleLines = [];
+    if (ns.mode === 'fixed') {
+      var summary = scheduleSummaryText();
+      if (summary) scheduleLines.push(summary);
+    } else if (ns.mode === 'tbd') {
+      scheduleLines.push('未定（フロントより電話で段取り）');
+    }
+    if (scheduleLines.length) {
+      html += '<div class="paper-preview__section">入庫希望日</div><p class="paper-preview__note">' + escapeHtml(scheduleLines.join('\n')) + '</p>';
+    }
+    if (formData.daisha) {
+      html += '<div class="paper-preview__section">代車</div><p class="paper-preview__note">' + escapeHtml(formData.daisha) + '</p>';
     }
 
     if (formData.note && formData.note.trim()) {
@@ -1429,7 +1310,7 @@ body.modal-open { overflow: hidden; }
   }
 
   /* ============================================================
-   * LINEテキスト生成（§7.3書式厳守）
+   * LINEテキスト生成（設計図§4書式厳守）
    * ============================================================ */
   function buildWorkContentLines() {
     var out = [];
@@ -1438,55 +1319,22 @@ body.modal-open { overflow: hidden; }
       if (!item.on) return;
       if (def.kind === 'standard') {
         out.push('✅' + def.label);
-        var sub = joinSlash([item.detail ? item.detail.trim() : '', item.due ? '締切 ' + formatMD(item.due) : '']);
-        if (sub) out.push('　└ ' + sub);
-      } else if (def.kind === 'warranty') {
-        var main = '✅' + def.label + '：' + (item.has || '');
-        if (item.has === '有り' && item.succeedTo && item.succeedTo.trim()) main += '（' + item.succeedTo.trim() + '）';
-        out.push(main);
-        var sub2 = joinSlash([item.note ? item.note.trim() : '', item.due ? '締切 ' + formatMD(item.due) : '']);
-        if (sub2) out.push('　└ ' + sub2);
+        var detail = item.detail ? item.detail.trim() : '';
+        if (detail) out.push('　└ ' + detail);
       } else if (def.kind === 'other') {
         item.rows.forEach(function (row) {
           var text = row.text ? row.text.trim() : '';
-          var due = row.due ? '締切 ' + formatMD(row.due) : '';
-          if (!text && !due) return;
+          if (!text) return;
           out.push('✅' + def.label);
-          var sub3 = joinSlash([text, due]);
-          if (sub3) out.push('　└ ' + sub3);
+          out.push('　└ ' + text);
         });
-      } else if (def.kind === 'etc') {
-        out.push('✅' + def.label + (item.no && item.no.trim() ? '：' + item.no.trim() : ''));
-        var subEtc = joinSlash([item.setup ? 'セットアップ' + item.setup : '', item.due ? '締切 ' + formatMD(item.due) : '']);
-        if (subEtc) out.push('　└ ' + subEtc);
-      } else if (def.kind === 'brs') {
-        out.push('✅' + def.label + (item.mileage ? '：' + item.mileage + 'km' : ''));
-        if (item.due) out.push('　└ 締切 ' + formatMD(item.due));
-      } else if (def.kind === 'tireSize') {
-        out.push('✅' + def.label);
-        var subTs = joinSlash([
-          item.front ? 'フロント：' + item.front.trim() : '',
-          item.rear ? 'リヤ：' + item.rear.trim() : '',
-          item.due ? '締切 ' + formatMD(item.due) : ''
-        ]);
-        if (subTs) out.push('　└ ' + subTs);
-      } else if (def.kind === 'tireYear') {
-        out.push('✅' + def.label);
-        var subTy = joinSlash([
-          item.fr ? '右フロント' + item.fr.trim() : '',
-          item.fl ? '左フロント' + item.fl.trim() : '',
-          item.rr ? '右リヤ' + item.rr.trim() : '',
-          item.rl ? '左リヤ' + item.rl.trim() : '',
-          item.due ? '締切 ' + formatMD(item.due) : ''
-        ]);
-        if (subTy) out.push('　└ ' + subTy);
       }
     });
     return out;
   }
 
   function buildLineText() {
-    var top = '━━━ 作業指示書 ━━━';
+    var top = '━━━ 入庫予約依頼 ━━━';
     var bottom = '━━━━━━━━━━';
     var divider = '───────────';
 
@@ -1494,14 +1342,24 @@ body.modal-open { overflow: hidden; }
     if (formData.requestDate) header.push('■依頼日：' + formatDateSlashJp(formData.requestDate));
     header.push('■店舗：BYD名古屋北');
     header.push('■お客様：' + (formData.customerName || '') + ' 様');
-    if (formData.desiredDate) header.push('■完成希望日：' + formatDateSlashJp(formData.desiredDate));
+    if (formData.customerTel && formData.customerTel.trim()) header.push('■電話：' + formData.customerTel.trim());
     if (formData.carModel) header.push('■車種：' + formData.carModel + (formData.modelYear ? '（' + formData.modelYear + '年式）' : ''));
-    if (formData.vin) header.push('■車体番号：' + formData.vin);
-    if (formData.manageNo) header.push('■管理番号：' + formData.manageNo);
+    if (formData.plateNo && formData.plateNo.trim()) header.push('■ナンバー：' + formData.plateNo.trim());
     if (formData.salesStaff.length) header.push('■営業担当：' + formData.salesStaff.join('・'));
 
     var workLines = buildWorkContentLines();
-    var work = workLines.length ? ['【作業内容】'].concat(workLines) : [];
+    var work = workLines.length ? ['【入庫内容】'].concat(workLines) : [];
+
+    var scheduleBlock = [];
+    var ns = formData.nyukoSchedule;
+    if (ns.mode === 'fixed') {
+      var summary = scheduleSummaryText();
+      if (summary) scheduleBlock.push('■入庫希望日：' + summary);
+    } else if (ns.mode === 'tbd') {
+      scheduleBlock.push('■入庫希望日：未定');
+      scheduleBlock.push('👉 お客様へ電話で日程の段取りをお願いします');
+    }
+    if (formData.daisha) scheduleBlock.push('■代車：' + formData.daisha);
 
     var noteBlock = [];
     if (formData.note && formData.note.trim()) {
@@ -1511,10 +1369,10 @@ body.modal-open { overflow: hidden; }
 
     var askReplyBlock = [];
     if (formData.askReply) {
-      askReplyBlock.push('👉 お願い：車両確認のうえ、仕上がり予定日をこのトークに返信してください');
+      askReplyBlock.push('👉 お願い：予約可否をこのトークに返信してください');
     }
 
-    var blocks = [header, work, noteBlock, askReplyBlock].filter(function (b) { return b.length > 0; });
+    var blocks = [header, work, scheduleBlock, noteBlock, askReplyBlock].filter(function (b) { return b.length > 0; });
     var body = blocks.map(function (b) { return b.join('\n'); }).join('\n' + divider + '\n');
     var footer = '作成：' + formatDateTimeIso(new Date());
 
@@ -1574,7 +1432,7 @@ body.modal-open { overflow: hidden; }
   }
 
   /* ============================================================
-   * LINE共有（§C 共有フロー刷新）※すべてクリックハンドラ内でのみ実行
+   * LINE共有（共有フロー刷新）※すべてクリックハンドラ内でのみ実行
    * 「コピー完了ファースト」：無条件でまずコピーを実行し、結果に関わらず
    * 送信ナビモーダルを開く。navigator.share が使える環境ではモーダルより
    * 先に共有シートを試し、成功すればモーダルは不要（キャンセル＝何もしない）
@@ -1588,7 +1446,7 @@ body.modal-open { overflow: hidden; }
 
     var statusEl = document.getElementById('sendNavStatus');
     if (statusEl) {
-      statusEl.textContent = copyOk ? '✅ 指示書テキストをコピーしました' : '下のテキストを長押しでコピーしてください';
+      statusEl.textContent = copyOk ? '✅ 予約依頼テキストをコピーしました' : '下のテキストを長押しでコピーしてください';
     }
 
     var stepsEl = document.getElementById('sendNavSteps');
@@ -1617,7 +1475,7 @@ body.modal-open { overflow: hidden; }
     if (pre) pre.textContent = text;
 
     copyTextToClipboard(text, function (copyOk) {
-      // 共有シートはスマホのみ（§C）。PCはWindows共有パネルが行き止まりになるため常に送信ナビへ
+      // 共有シートはスマホのみ。PCはWindows共有パネルが行き止まりになるため常に送信ナビへ
       if (navigator.share && isMobileUA()) {
         try {
           var result = navigator.share({ text: text });
@@ -1639,28 +1497,42 @@ body.modal-open { overflow: hidden; }
   }
 
   /* ============================================================
-   * 画像生成（§7.2）自前Canvas描画のみ・外部ライブラリ不使用
+   * 画像生成（自前Canvas描画のみ・外部ライブラリ不使用）
+   * 表は2列（項目｜内容）：お客様情報＋ONの入庫内容＋入庫希望日＋代車＋備考
    * ============================================================ */
-  function canvasDetailText(def, item) {
-    if (def.kind === 'standard') return item.detail || '';
-    if (def.kind === 'warranty') {
-      var s = item.has || '';
-      if (item.has === '有り' && item.succeedTo) s += '（' + item.succeedTo + '）';
-      if (item.note) s += (s ? ' ' : '') + item.note;
-      return s;
+  function buildCanvasRows() {
+    var rows = [];
+    if (formData.requestDate) rows.push(['依頼日', formatDateSlashJp(formData.requestDate)]);
+    rows.push(['お客様', (formData.customerName || '（未入力）') + ' 様']);
+    if (formData.customerTel && formData.customerTel.trim()) rows.push(['電話', formData.customerTel.trim()]);
+    rows.push(['車種', (formData.carModel || '（未入力）') + (formData.modelYear ? '（' + formData.modelYear + '年式）' : '')]);
+    if (formData.plateNo && formData.plateNo.trim()) rows.push(['ナンバー', formData.plateNo.trim()]);
+    rows.push(['営業担当', formData.salesStaff.length ? formData.salesStaff.join('・') : '（未入力）']);
+
+    ITEM_DEFS.forEach(function (def) {
+      var item = formData.items[def.id];
+      if (!item.on) return;
+      var v;
+      if (def.kind === 'other') {
+        v = item.rows.map(function (r) { return r.text ? r.text.trim() : ''; }).filter(function (t) { return t; }).join(' / ');
+      } else {
+        v = item.detail ? item.detail.trim() : '';
+      }
+      rows.push([def.label, v]);
+    });
+
+    var ns = formData.nyukoSchedule;
+    if (ns.mode === 'fixed') {
+      rows.push(['入庫希望日', scheduleSummaryText() || '（未入力）']);
+    } else if (ns.mode === 'tbd') {
+      rows.push(['入庫希望日', '未定（フロントより電話で段取り）']);
     }
-    if (def.kind === 'other') {
-      return item.rows.map(function (r) { return r.text; }).filter(function (t) { return t; }).join(' / ');
-    }
-    if (def.kind === 'etc') {
-      var e = item.no || '';
-      if (item.setup) e += (e ? ' ' : '') + 'セットアップ' + item.setup;
-      return e;
-    }
-    if (def.kind === 'brs') return item.mileage ? item.mileage + 'km' : '';
-    if (def.kind === 'tireSize') return joinSlash([item.front ? 'F:' + item.front : '', item.rear ? 'R:' + item.rear : '']);
-    if (def.kind === 'tireYear') return joinSlash([item.fr ? '右前' + item.fr : '', item.fl ? '左前' + item.fl : '', item.rr ? '右後' + item.rr : '', item.rl ? '左後' + item.rl : '']);
-    return '';
+    if (formData.daisha) rows.push(['代車', formData.daisha]);
+
+    var note = (formData.note || '').trim();
+    if (note) rows.push([NOTE_ITEM_LABEL, note]);
+
+    return rows;
   }
 
   function wrapCanvasText(ctx, text, maxWidth) {
@@ -1691,45 +1563,32 @@ body.modal-open { overflow: hidden; }
     var measureCanvas = document.createElement('canvas');
     var mctx = measureCanvas.getContext('2d');
 
-    var colRatios = [0.30, 0.42, 0.12, 0.08, 0.08]; // 作業項目|仕様,内容,希望|締切日|手配日|完了日
     var tableWidth = (width * scale) - margin * 2;
-    var cols = colRatios.map(function (r) { return Math.round(tableWidth * r); });
+    var col0 = Math.round(tableWidth * 0.28);
+    var col1 = tableWidth - col0;
 
-    var rowFontSize = 15 * scale;
-    var lineHeight = 22 * scale;
-    var rowPaddingV = 10 * scale;
-    var minRowHeight = 46 * scale;
+    var rowFontSize = 16 * scale;
+    var lineHeight = 23 * scale;
+    var rowPaddingV = 12 * scale;
+    var minRowHeight = 48 * scale;
 
     mctx.font = rowFontSize + 'px sans-serif';
-    var rowsRaw = ITEM_DEFS.map(function (def) {
-      var item = formData.items[def.id];
-      var detailText = item.on ? canvasDetailText(def, item) : '';
-      var dueText = item.on && item.due ? formatMD(item.due) : '';
-      return { label: def.no + '. ' + def.label, detail: detailText, due: dueText };
-    });
-
-    var measured = rowsRaw.map(function (r) {
-      var labelLines = wrapCanvasText(mctx, r.label, cols[0] - 16 * scale);
-      var detailLines = wrapCanvasText(mctx, r.detail, cols[1] - 16 * scale);
+    var dataRows = buildCanvasRows();
+    var measured = dataRows.map(function (r) {
+      var labelLines = wrapCanvasText(mctx, r[0], col0 - 16 * scale);
+      var valueLines = wrapCanvasText(mctx, r[1], col1 - 16 * scale);
       if (!labelLines.length) labelLines = [''];
-      if (!detailLines.length) detailLines = [''];
-      var lineCount = Math.max(labelLines.length, detailLines.length);
+      if (!valueLines.length) valueLines = [''];
+      var lineCount = Math.max(labelLines.length, valueLines.length);
       var h = Math.max(minRowHeight, lineCount * lineHeight + rowPaddingV * 2);
-      return { row: r, labelLines: labelLines, detailLines: detailLines, height: h };
+      return { labelLines: labelLines, valueLines: valueLines, height: h };
     });
 
-    var noteText = (formData.note || '').trim();
-    mctx.font = (16 * scale) + 'px sans-serif';
-    var noteLines = noteText ? wrapCanvasText(mctx, noteText, tableWidth) : [];
-
-    var headerBlockHeight = 220 * scale; // 依頼日メタ行の追加分を加味
-    var tableHeaderHeight = 44 * scale;
+    var titleBlockHeight = 76 * scale;
     var tableBodyHeight = measured.reduce(function (s, m) { return s + m.height; }, 0);
-    var noteBlockHeight = 48 * scale + Math.max(noteLines.length, 1) * (22 * scale);
     var footerHeight = 50 * scale;
 
-    var totalHeight = margin + headerBlockHeight + tableHeaderHeight + tableBodyHeight + noteBlockHeight + footerHeight + margin;
-    totalHeight = Math.max(totalHeight, 1528 * scale);
+    var totalHeight = margin + titleBlockHeight + tableBodyHeight + footerHeight + margin;
 
     var canvas = document.createElement('canvas');
     canvas.width = width * scale;
@@ -1745,10 +1604,11 @@ body.modal-open { overflow: hidden; }
 
     ctx.fillStyle = '#111111';
     ctx.font = 'bold ' + (40 * scale) + 'px sans-serif';
-    ctx.fillText('作業指示書', x, y);
+    ctx.fillText('入庫予約依頼', x, y);
+    var titleWidth = ctx.measureText('入庫予約依頼').width;
     ctx.fillStyle = '#c8102e';
     ctx.font = 'bold ' + (20 * scale) + 'px sans-serif';
-    ctx.fillText('BYD名古屋北', x + 260 * scale, y + 14 * scale);
+    ctx.fillText('BYD名古屋北', x + titleWidth + 20 * scale, y + 14 * scale);
 
     y += 56 * scale;
     ctx.strokeStyle = '#1f1f1f';
@@ -1759,36 +1619,7 @@ body.modal-open { overflow: hidden; }
     ctx.stroke();
     y += 20 * scale;
 
-    ctx.font = (20 * scale) + 'px sans-serif';
-    ctx.fillStyle = '#111111';
-    var metaLines = [
-      '依頼日：' + (formData.requestDate ? formatDateSlashJp(formData.requestDate) : '（未入力）'),
-      'お客様：' + (formData.customerName || '（未入力）') + ' 様',
-      '完成希望日：' + (formData.desiredDate ? formatDateSlashJp(formData.desiredDate) : '（未入力）'),
-      '車種：' + (formData.carModel || '（未入力）') + (formData.modelYear ? '（' + formData.modelYear + '年式）' : ''),
-      '車体番号：' + (formData.vin || '（未入力）') + '　　管理番号：' + (formData.manageNo || '（未入力）'),
-      '営業担当：' + (formData.salesStaff.length ? formData.salesStaff.join('・') : '（未入力）')
-    ];
-    metaLines.forEach(function (line) {
-      ctx.fillText(line, x, y);
-      y += 30 * scale;
-    });
-
-    y += 8 * scale;
-
-    var headers = ['作業項目', '仕様、内容、希望', '締切日', '手配日', '完了日'];
     var tableTop = y;
-    ctx.fillStyle = '#1f1f1f';
-    ctx.fillRect(x, y, tableWidth, tableHeaderHeight);
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold ' + (16 * scale) + 'px sans-serif';
-    var hx = x;
-    headers.forEach(function (h, i) {
-      ctx.fillText(h, hx + 10 * scale, y + tableHeaderHeight / 2 - 9 * scale);
-      hx += cols[i];
-    });
-    y += tableHeaderHeight;
-
     measured.forEach(function (m, idx) {
       var rowY = y;
       var rowH = m.height;
@@ -1798,34 +1629,27 @@ body.modal-open { overflow: hidden; }
       ctx.strokeStyle = '#d8d2c4';
       ctx.lineWidth = 1 * scale;
       ctx.strokeRect(x, rowY, tableWidth, rowH);
+      ctx.beginPath();
+      ctx.moveTo(x + col0, rowY);
+      ctx.lineTo(x + col0, rowY + rowH);
+      ctx.stroke();
 
-      var cxx = x;
-      cols.forEach(function (w) {
-        cxx += w;
-        ctx.beginPath();
-        ctx.moveTo(cxx, rowY);
-        ctx.lineTo(cxx, rowY + rowH);
-        ctx.stroke();
-      });
-
-      ctx.fillStyle = '#111111';
-      ctx.font = rowFontSize + 'px sans-serif';
+      ctx.fillStyle = '#8a1f2e';
+      ctx.font = 'bold ' + rowFontSize + 'px sans-serif';
       var ly = rowY + rowPaddingV;
       m.labelLines.forEach(function (ll) {
         ctx.fillText(ll, x + 8 * scale, ly);
         ly += lineHeight;
       });
 
-      var dx = x + cols[0] + 8 * scale;
-      var dy = rowY + rowPaddingV;
-      m.detailLines.forEach(function (dl) {
-        ctx.fillText(dl, dx, dy);
-        dy += lineHeight;
+      ctx.fillStyle = '#111111';
+      ctx.font = rowFontSize + 'px sans-serif';
+      var vy = rowY + rowPaddingV;
+      var vx = x + col0 + 8 * scale;
+      m.valueLines.forEach(function (vl) {
+        ctx.fillText(vl, vx, vy);
+        vy += lineHeight;
       });
-
-      var ddx = x + cols[0] + cols[1] + 8 * scale;
-      ctx.fillText(m.row.due || '', ddx, rowY + rowPaddingV);
-      // 手配日・完了日列は空欄枠のまま（テキストを描画しない）
 
       y += rowH;
     });
@@ -1834,25 +1658,6 @@ body.modal-open { overflow: hidden; }
     ctx.strokeStyle = '#1f1f1f';
     ctx.lineWidth = 2 * scale;
     ctx.strokeRect(x, tableTop, tableWidth, tableBottom - tableTop);
-
-    y += 26 * scale;
-
-    ctx.font = 'bold ' + (18 * scale) + 'px sans-serif';
-    ctx.fillStyle = '#1f1f1f';
-    ctx.fillText(NOTE_ITEM_LABEL, x, y);
-    y += 28 * scale;
-    ctx.font = (16 * scale) + 'px sans-serif';
-    if (noteLines.length) {
-      ctx.fillStyle = '#111111';
-      noteLines.forEach(function (nl) {
-        ctx.fillText(nl, x, y);
-        y += 22 * scale;
-      });
-    } else {
-      ctx.fillStyle = '#999999';
-      ctx.fillText('（記入なし）', x, y);
-      y += 22 * scale;
-    }
 
     y = totalHeight - margin - 20 * scale;
     ctx.fillStyle = '#6b6b6b';
@@ -1866,7 +1671,7 @@ body.modal-open { overflow: hidden; }
     var d = new Date();
     var ymd = d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate());
     var name = (formData.customerName || '未入力').replace(/[\\/:*?"<>|]/g, '_');
-    return 'BYD作業指示書_' + name + '_' + ymd + '.png';
+    return 'BYD入庫予約_' + name + '_' + ymd + '.png';
   }
 
   function downloadBlob(blob, filename) {
@@ -1914,9 +1719,9 @@ body.modal-open { overflow: hidden; }
       var file = null;
       try { file = new File([blob], filename, { type: 'image/png' }); } catch (e) { file = null; }
 
-      // 共有シートはスマホのみ（§C）。PCは保存＋添付手順ナビへ
+      // 共有シートはスマホのみ。PCは保存＋添付手順ナビへ
       if (file && isMobileUA() && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file], title: '作業指示書' }).catch(function (err) {
+        navigator.share({ files: [file], title: '入庫予約依頼' }).catch(function (err) {
           if (err && err.name === 'AbortError') return;
           downloadBlob(blob, filename);
           openImageNavModal(filename);
