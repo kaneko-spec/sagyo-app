@@ -1624,12 +1624,14 @@ body.modal-open { overflow: hidden; }
     var minRowHeight = 46 * scale;
 
     mctx.font = rowFontSize + 'px sans-serif';
-    var rowsRaw = ITEM_DEFS.map(function (def) {
+    // 依頼（ON）した項目だけを画像に出す（2026-09-01 本人指摘対応。LINEテキストと同じ絞り込み）
+    var rowsRaw = ITEM_DEFS.filter(function (def) {
+      return formData.items[def.id].on;
+    }).map(function (def) {
       var item = formData.items[def.id];
-      var detailText = item.on ? canvasDetailText(def, item) : '';
-      var dueText = item.on && item.due ? formatMD(item.due) : '';
-      return { label: def.no + '. ' + def.label, detail: detailText, due: dueText };
+      return { label: def.no + '. ' + def.label, detail: canvasDetailText(def, item), due: item.due ? formatMD(item.due) : '' };
     });
+    if (!rowsRaw.length) rowsRaw = [{ label: '（作業項目なし）', detail: '', due: '' }];
 
     var measured = rowsRaw.map(function (r) {
       var labelLines = wrapCanvasText(mctx, r.label, cols[0] - 16 * scale);
