@@ -267,6 +267,10 @@ body.modal-open { overflow: hidden; }
 
   <main>
 
+    <p id="storageWarning" role="alert" hidden style="padding:12px;border:2px solid #9b2424;background:#fff2f2;color:#7a1515;">
+      <span id="storageWarningMessage">この端末に保存できていません。画面を閉じずに「文面をコピー」で内容を控え、空き容量やブラウザの設定を確認してから「保存」を押してください。</span>
+      </p>
+
     <!-- ① 日付 -->
     <section class="card" id="dateSection">
       <h2 class="card__title">① 日付</h2>
@@ -694,12 +698,13 @@ body.modal-open { overflow: hidden; }
   function defaultStore() {
     return { settings: { comma: false, links: defaultLinks(), months: {}, integration: defaultIntegration() }, days: {} };
   }
+  var storageReadFailed = false;
   function loadStore() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return defaultStore();
       var parsed = JSON.parse(raw);
-      if (!parsed || typeof parsed !== 'object') return defaultStore();
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('bad store');
       if (!parsed.settings || typeof parsed.settings !== 'object') parsed.settings = { comma: false, links: defaultLinks(), months: {}, integration: defaultIntegration() };
       if (typeof parsed.settings.comma !== 'boolean') parsed.settings.comma = false;
       if (!parsed.settings.links || !parsed.settings.links.length) parsed.settings.links = defaultLinks();
@@ -709,16 +714,48 @@ body.modal-open { overflow: hidden; }
       if (typeof parsed.settings.integration.appToken !== 'string') parsed.settings.integration.appToken = '';
       if (!parsed.days || typeof parsed.days !== 'object') parsed.days = {};
       return parsed;
-    } catch (e) { return defaultStore(); }
+    } catch (e) { storageReadFailed = true; return defaultStore(); }
   }
   var saveTimer = null;
+  var savePending = false;
   function saveStoreNow() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(store)); } catch (e) { /* 容量超過等は無視 */ }
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = null;
+    var warning = document.getElementById('storageWarning');
+    if (typeof storageReadFailed !== 'undefined' && storageReadFailed) {
+      savePending = true;
+      if (warning) {
+        warning.hidden = false;
+        var message = document.getElementById('storageWarningMessage');
+        if (message) message.textContent = '保存済みデータを読み込めないため、元データの上書きを停止しています。画面を閉じずに入力内容をコピーして控えてください。';
+        warning.setAttribute && warning.setAttribute('title', '保存済みデータを読み込めないため、元データの上書きを停止しています。');
+      }
+      return false;
+    }
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+      savePending = false;
+      if (warning) warning.hidden = true;
+      return true;
+    } catch (e) {
+      savePending = true;
+      if (warning) warning.hidden = false;
+      return false;
+    }
   }
   function scheduleSave() {
+    savePending = true;
     if (saveTimer) clearTimeout(saveTimer);
     saveTimer = setTimeout(saveStoreNow, 500);
   }
+
+  function flushPendingSave() {
+    if (savePending) saveStoreNow();
+  }
+  window.addEventListener('pagehide', flushPendingSave);
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') flushPendingSave();
+  });
 
   function freshDay() {
     return {
@@ -1650,8 +1687,7 @@ body.modal-open { overflow: hidden; }
 
     document.getElementById('btnCopyShare').addEventListener('click', handleShareLineText);
     document.getElementById('btnSaveNow').addEventListener('click', function () {
-      saveStoreNow();
-      showToast('保存済み ✓');
+      showToast(saveStoreNow() ? '保存済み ✓' : '保存できませんでした。画面を閉じずに内容を控えてください');
     });
 
     document.getElementById('btnMonthTargetSave').addEventListener('click', function () {
